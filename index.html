@@ -23,13 +23,14 @@ const {
 		#title{user-select: none;}
 		#title:hover{
 			color:green;
-			cursor: default;
-			transition: color 300ms;
+			cursor:default;
+			transition:color 300ms;
 
 		}
 	</style>
 </head>
 <body>
+<center>
 <h1 id="title">Aufgaben Planer</h1>
 <div id="div_createTask" class="niceBorder hidden">
 	<form onsubmit="return(false);">
@@ -78,7 +79,6 @@ const {
 <div id="showTodos"></div>
 
 <script>
-let loginData=localStorage.getItem("loginData");
 let last_saveMode=localStorage.getItem("todo_saveMode");
 let saveMode="local";
 let elements_kategories=[];
@@ -156,61 +156,70 @@ function CreateProgressbar(){
 	AppendChild(element,doc.body)
 }
 function UploadVar(value){
-
 	if(saveMode=="local"){
 		localStorage.setItem("todo_TodoHTML",value);
 	}
 	else if(saveMode=="server"){
 		CreateProgressbar();
-		if(loginData==null){
-			con.log("[UploadVar][server][ERROR]: ACCOUNT NOT FOUND!");
-			return false;
-		}
-		const [userName,userToken]=loginData.split("|");
-		const variable="todo.html";
-		SetVar(userName,userToken,variable,value,HandleVar,[variable,true])
+		callApi({
+			api:"/server/account/account.api",
+			HandleServerResponse:HandleVar,
+			args:{
+				want:"setVar",
+				varname:"todo_TodoHTML",
+				vardata:value,
+			},
+		});
 	}
 }
-function HandleVar(result,r){
-	if(r[0]=="todo.html"&&r[1]==false){
-		if(result=="WRONG ACC DATA"){
-			alert("you account is not activ");
-			if(confirm("logout now?")){Logout();}
-			return false;
-		}else if(result=="VAR NOT FOUND"){
-			console.log("Todo Liste Exestirt noch nicht auf disem account!");
-			alert("Todo Liste Exestirt noch nicht auf disem account!\nErstelle ...");
+function HandleVar(data){
+	let {
+		serverResponse,
+		clientAction,
+		//clientRequest,
+	}=data;
+
+	try{serverResponse=JSON.parse(serverResponse)}
+	catch(e){
+		alert("FEHLER serverResponse kann nicht in json umgewandelt werden!");
+		return false;
+	}
+
+	//console.log(serverResponse);
+	//console.log(clientAction);
+	if(clientAction=="setVar"){
+		if(serverResponse.code=="ok"){
+			// VAR WAS SUCSESSSULY UPLOADED!;
+			try{GetId("bar").remove()}catch(e){}
+			return true;
+		}
+	}
+	else if(clientAction=="getVar"){
+		if(serverResponse.code=="var not exist"){
+			console.log("Neue Todo list wird erstelt...");
 			todoHtml=GenTodoHtml();
-			UploadVar(JSON.stringify(todoHtml));
-			return false;
+			CreateTODOList();
+			callApi({
+				api:"/server/account/account.api",
+				HandleServerResponse:HandleVar,
+				args:{
+					want:"setVar",
+					varname:"todo_TodoHTML",
+					vardata:todoHtml,
+				},
+			});
+			return true;
 		}
-		try{
-			todoHtml=JSON.parse(result);
-		}catch(e){con.log("[HandleVar][todoHtml][ERROR]: result cant parse! loading defult!");todoHtml=GenTodoHtml();}
-
-		CreateTODOList();
+		if(serverResponse.code=="ok"){
+			try{
+				todoHtml=JSON.parse(serverResponse.data.vardata.data);
+			}catch(e){alert("daten konnten nicht decodirt werden!")}
+			CreateTODOList();
+			return true;
+		}
 	}
-	else if(r[0]=="LOGIN"&&r[1]==true){
-		con.log("[HandleVar][LOGIN][INFO]: result="+result);
-		try{GetId("bar").remove();}catch(e){}
-
-		if(result){
-			GetId("button_login").hidden=true;
-		}
-		else if(!result){
-
-		}
-	}
-	else if(r[1]){
-		if(result==true||result==false){
-			if(!result){con.log("LOGIN FAILD!");}
-		}
-		else{
-			const [state,...t]=result.split("|");
-			if(state!="OK"){con.log("[HandleVar][ERROR]: ERROR VAR DOESN'T SAVE!");alert("Es ist ein Server Fehler aufgetreten!\nWir konnten nicht sicherstellen das dein Stant gespeichert wurde!")}
-		}
-		try{GetId("bar").remove();}catch(e){}
-	}
+	if(serverResponse.errormsg){alert(serverResponse.errormsg)}
+	try{GetId("bar").remove()}catch(e){}
 }
 function CreateTODOList(){
 	for(element of elements_todo){
@@ -436,9 +445,8 @@ function update(){//EXECUTE THIS EVERY SECOND!;
 		let span=GetId("span_autoBR");
 		span.innerHTML=", ";
 	}
-	
-	const btnLogin_hidden=GetId("button_login").hidden;
-	if(width<=480&&!btnLogin_hidden){
+
+	if(width<=480){
 		doc.body.style.marginTop="50px";
 	}else{
 		doc.body.style.marginTop="8px";
@@ -450,22 +458,23 @@ function ChangeSaveMode(newMode,upload=true){
 		select.value="server";
 
 		if(upload){UploadVar(JSON.stringify(todoHtml))};
-
-		if(loginData==null){
-			alert("Anmelden nicht vergessen ;)")
-			con.log("[ChangeSaveMode][server][ERROR]: ACCOUNT DATA NOT FOUND Change to Local!")
-			ChangeSaveMode("local");
+		if(!GetCookie("token")){
+			if(confirm("Nicht angemeldet jz anmelden?")){
+				location.href="/account";
+			}
+			saveMode="local";
+			select.value="local";
 			return false;
 		}
 
-		const [userName,userToken]=loginData.split("|");
-		CreateProgressbar();
-		let afterRUN=(finish)=>{
-			HandleVar(finish,["LOGIN",true]);
-		}
-		Login(userName,userToken,"token",null,null,false,afterRUN);
-		let variable="todo.html";
-		GetVar(userName,userToken,variable,HandleVar,[variable,false]);	
+		callApi({
+			api:"/server/account/account.api",
+			HandleServerResponse:HandleVar,
+			args:{
+				want:"getVar",
+				varname:"todo_TodoHTML",
+			},
+		});
 
 		saveMode="server";
 		localStorage.setItem("todo_saveMode",saveMode);
@@ -508,29 +517,13 @@ if(last_saveMode=="server"||last_saveMode=="local"){
 	saveMode=last_saveMode;
 }
 
-if(loginData){GetId("button_login").hidden=true;}
-
 loadData:{
 	if(saveMode=="server"){
-		if(loginData){
-			con.log("[loadData][server][INFO]: loading data from server...");
-			if(loginData==null){
-				if(confirm("Keine Anmeldedaten gefunden!\nIm Lokalem modus verwenden?\n\nTipp: Anmelden oben links.")){
-					ChangeSaveMode("local",false);
-				}
-				break loadData;
+		if(!GetCookie("token")){
+			if(confirm("Nicht angemeldet jz anmelden?")){
+				location.href="/account";
 			}
-			const [userName,userToken]=loginData.split("|");
-			CreateProgressbar();
-			let afterRUN=(finish)=>{
-				HandleVar(finish,["LOGIN",true]);
-			}
-			Login(userName,userToken,"token",null,null,false,afterRUN);
-			let variable="todo.html";
-			GetVar(userName,userToken,variable,HandleVar,[variable,false]);
-		}
-		else if(!loginData){
-			if(confirm("Keine Account daten gefunden!\n\nZu Lokalem modus Wekseln?")){saveMode="local";}
+			saveMode="local";
 		}
 	}
 	if(saveMode=="local"){
@@ -549,17 +542,8 @@ loadData:{
 ChangeSaveMode(saveMode,false);
 update();
 
-/*else{
-	const [userName,userToken]=loginData.split("|");
-	CreateProgressbar();
-	let afterRUN=(finish)=>{
-		HandleVar(finish,["LOGIN",true]);
-	}
-	Login(userName,userToken,"token",null,null,false,afterRUN);
-	let variable="todo.html";
-	GetVar(userName,userToken,variable,HandleVar,[variable,false]);
-}*/
 setInterval(update,1000);
 </script>
+</center>
 </body>
 </html>
