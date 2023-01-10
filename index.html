@@ -1,8 +1,20 @@
-<!DOCTYPE html>
+<?
+const {
+	importHead,
+}=globals.functions;
+?><!DOCTYPE html>
 <!--CREATED AT: 05.08.2022 UM 09:12-->
+<!--UPDATED AT: 10.01.2023 UM 21:13-->
 <html>
 <head>
-	<?=globals.tmp_head("Deine Aufgaben",input)?>
+<?=importHead({
+	input,
+	title:"Deine Aufgaben",
+	css:[
+		"/css/main.css",
+		"/css/dynamic.css?imports=styledBTN*,niceBorder,topRight,fullWindow,unten",
+	],
+})?>
 	<link rel=icon sizes=175x175 href="<?=globals.vars['folder_icon']?>/TODO/todo.png">
 	<link rel=icon sizes=64x64   href="<?=globals.vars['folder_icon']?>/TODO/todo64.png">
 	<link rel=icon sizes=32x32   href="<?=globals.vars['folder_icon']?>/TODO/todo32.png">
@@ -65,10 +77,6 @@
 </div>
 <div id="showTodos"></div>
 
-<div style="right: 10px;" class="logReg" id="div_logRegPlace">
-	<button class="logRegBTN login" id="button_login" onclick="CreateProgressbar();Login(null,null,null,null,null,false,(finish)=>{HandleVar(finish,['LOGIN',true])})">Login</button>
-
-</div>
 <script>
 let loginData=localStorage.getItem("loginData");
 let last_saveMode=localStorage.getItem("todo_saveMode");
