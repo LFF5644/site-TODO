@@ -1,0 +1,24 @@
+<?const iconFolder=globals.vars["folder_icon"]?>{
+	"name":"Taskplaner",
+	"description":"Taskplaner, save tasks on server",
+	"short_name":"Taskplaner",
+	"icons":[
+		{
+			"sizes":"175x175",
+			"src":"<?=iconFolder?>/TODO/todo.png"
+		},
+		{
+			"sizes":"64x64",
+			"src":"<?=iconFolder?>/TODO/todo64.png"
+		},
+		{
+			"sizes":"32x32",
+			"src":"<?=iconFolder?>/TODO/todo32.png"
+		}
+	],
+	"scope":"/TODO",
+	"start_url":"/TODO?type=app",
+	"display":"fullscreen",
+	"theme_color": "#103",
+	"background_color":"#103"
+}
