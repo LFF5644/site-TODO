@@ -157,7 +157,7 @@ function CreateProgressbar(){
 }
 function UploadVar(value){
 	if(saveMode=="local"){
-		localStorage.setItem("todo_TodoHTML",value);
+		localStorage.setItem("todo_TodoHTML",btoa(value));
 	}
 	else if(saveMode=="server"){
 		CreateProgressbar();
@@ -167,7 +167,8 @@ function UploadVar(value){
 			args:{
 				want:"setVar",
 				varname:"todo_TodoHTML",
-				vardata:value,
+				vardata:btoa(value),
+				coding:"base64",
 			},
 		});
 	}
@@ -182,6 +183,7 @@ function HandleVar(data){
 	try{serverResponse=JSON.parse(serverResponse)}
 	catch(e){
 		alert("FEHLER serverResponse kann nicht in json umgewandelt werden!");
+		alert(serverResponse);
 		return false;
 	}
 
@@ -196,7 +198,7 @@ function HandleVar(data){
 	}
 	else if(clientAction=="getVar"){
 		if(serverResponse.code=="var not exist"){
-			console.log("Neue Todo list wird erstelt...");
+			console.log("Neue Todo list wird erstellt...");
 			todoHtml=GenTodoHtml();
 			CreateTODOList();
 			callApi({
@@ -205,14 +207,15 @@ function HandleVar(data){
 				args:{
 					want:"setVar",
 					varname:"todo_TodoHTML",
-					vardata:todoHtml,
+					vardata:btoa(todoHtml),
+					coding:"base64",
 				},
 			});
 			return true;
 		}
 		if(serverResponse.code=="ok"){
 			try{
-				todoHtml=JSON.parse(serverResponse.data.vardata.data);
+				todoHtml=JSON.parse(atob(serverResponse.data.vardata.data));
 			}catch(e){alert("daten konnten nicht decodirt werden!")}
 			CreateTODOList();
 			return true;
@@ -473,6 +476,7 @@ function ChangeSaveMode(newMode,upload=true){
 			args:{
 				want:"getVar",
 				varname:"todo_TodoHTML",
+				coding:"base64",
 			},
 		});
 
@@ -485,7 +489,7 @@ function ChangeSaveMode(newMode,upload=true){
 
 		if(upload){UploadVar(JSON.stringify(todoHtml))};
 		
-		let newTodoHtml=localStorage.getItem("todo_TodoHTML");
+		let newTodoHtml=atob(localStorage.getItem("todo_TodoHTML"));
 		if(!newTodoHtml){
 			newTodoHtml=JSON.stringify(GenTodoHtml());
 		}
@@ -528,7 +532,7 @@ loadData:{
 	}
 	if(saveMode=="local"){
 		con.log("[loadData][local][INFO]: loading data from localStorage...")
-		let newTodoHtml=localStorage.getItem("todo_TodoHTML");
+		let newTodoHtml=atob(localStorage.getItem("todo_TodoHTML"));
 		if(!newTodoHtml){newTodoHtml=GenTodoHtml();}
 		else{
 			try{
