@@ -1,7 +1,16 @@
+button{
+	cursor: pointer;
+	margin-left: 2.5px;
+	margin-right: 2.5px;
+}
+a{
+	text-decoration: underline;
+}
+
 .finished{
 	text-decoration: line-through;
 }
-div.addTask{
+div.box{
 	margin: 0 auto;
 	margin-top: 30px;
 	padding: 30px;
@@ -9,11 +18,41 @@ div.addTask{
 	border-radius: 10px;
 	width: fit-content;
 }
+h1.withButton{
+	display: flex;
+	margin-left: 0;
+	text-align: center;
+}
+h1.withButton > span{
+	flex: 1;
+}
+h1.withButton > button{
+	color:red;
+	border-radius:5px;
+	border: 2px darkblue solid;
+}
+h1.withButton > button:hover{
+	border-color: red;
+}
 table.tasks{
 	margin-left: 10px;
 }
 table.tasks > tr{
-	scale: 2;
+	display: block;
+	scale: 1.2;
+	margin-bottom: 10px;
 }
 table.tasks > tr > td{
+	display: inline;
+	margin-right: 20px;
+}
+table.tasks > tr > td > button{
+	border-radius: 10px;
+	border-color: green;
+}
+table.tasks > tr > td > button:hover{
+	border-color: red;
+}
+table.tasks > tr > td > button:active{
+	border-color: gold;
 }
