@@ -1,0 +1,19 @@
+.finished{
+	text-decoration: line-through;
+}
+div.addTask{
+	margin: 0 auto;
+	margin-top: 30px;
+	padding: 30px;
+	border: 4px green solid;
+	border-radius: 10px;
+	width: fit-content;
+}
+table.tasks{
+	margin-left: 10px;
+}
+table.tasks > tr{
+	scale: 2;
+}
+table.tasks > tr > td{
+}
