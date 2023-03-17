@@ -5,15 +5,15 @@
 	"icons":[
 		{
 			"sizes":"175x175",
-			"src":"/files/img/TODO/todo.png"
+			"src":"/files/img/icon/TODO/todo.png"
 		},
 		{
 			"sizes":"64x64",
-			"src":"/files/img/TODO/todo64.png"
+			"src":"/files/img/icon/TODO/todo64.png"
 		},
 		{
 			"sizes":"32x32",
-			"src":"/files/img/TODO/todo32.png"
+			"src":"/files/img/icon/TODO/todo32.png"
 		}
 	],
 	"scope":"/TODO",
