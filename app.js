@@ -9,7 +9,7 @@ const {
 	node_map,
 	hook_memo,
 	hook_model,
-	//hook_effect,
+	hook_effect,
 }=lui;
 
 const model={
@@ -75,6 +75,10 @@ const model={
 		...state,
 		taskText,
 	}),
+	saveTasks: state=>{
+		localStorage.setItem("todo-tasks",JSON.stringify(state.tasks));
+		return state;
+	},
 	setView:(state,view)=>({
 		...state,
 		view,
@@ -159,6 +163,7 @@ function ViewAddTask({socket,state,actions}){return[
 					actions.setView("tasks");
 					actions.setTaskText("");
 					actions.setTaskTitle("");
+					actions.saveTasks();
 				},
 			}),
 			node_dom("button[innerText=Zurück]",{
@@ -177,7 +182,10 @@ function ViewAddTask({socket,state,actions}){return[
 function ViewEdit({state,actions,task}){return[
 	node_dom("h1[className=withButton]",null,[
 		node_dom("button[innerText=Back]",{
-			onclick:()=> actions.setView("tasks"),
+			onclick:()=>{
+				actions.setView("tasks");
+				actions.saveTasks();
+			},
 		}),
 		node_dom("span[innerText=Bearbeiten]"),
 	]),
@@ -230,8 +238,24 @@ init(()=>{
 		socket.on("connect",()=>{console.log("Connected as "+socket.id)})
 		socket.on("disconnect",()=>{console.log("Disconnect")})
 
+		loadTasks:{
+			const tasks=localStorage.getItem("todo-tasks");
+			if(tasks){
+				actions.setTasks(JSON.parse(tasks));
+			}
+		}
+
 		return socket;
 	});
+
+	hook_effect(tasks=>{
+		const timeout=setTimeout(()=>{
+			console.log("SAVE();");
+			actions.saveTasks();
+		},3e3);
+		return ()=> clearInterval(timeout);
+	},[state.tasks]);
+
 	return[null,[
 		state.view==="tasks"&&
 		node(ViewTasks,{socket,state,actions}),
