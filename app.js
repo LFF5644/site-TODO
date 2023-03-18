@@ -103,8 +103,17 @@ function getToken(){
 function ViewTasks({socket,state,actions}){return[
 	state.tasks.length===0&&
 	node_dom("h1[innerText=Keine TODOs]"),
+	
+	state.tasks.length===0&&
 	node_dom("p[innerText=Aufgabe jz ]",null,[
 		node_dom("a[innerText=erstellen]",{
+			onclick:()=> actions.setView("addTask"),
+		}),
+	]),
+
+	state.tasks.length>0&&
+	node_dom("p",null,[
+		node_dom("button[innerText=Neue Aufgabe]",{
 			onclick:()=> actions.setView("addTask"),
 		}),
 	]),
@@ -116,7 +125,7 @@ function ViewTasks({socket,state,actions}){return[
 		},
 	},[
 		node_map(Task,state.tasks,{socket,state,actions}),
-	]),	
+	]),
 ]}
 function Task({I,socket,state,actions}){return[
 	node_dom("tr",null,[

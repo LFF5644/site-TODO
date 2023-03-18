@@ -42,8 +42,9 @@ table.tasks{
 	margin-left: 10px;
 }
 table.tasks > tr{
+	margin: 10px 0 10px 5px;
 	display: block;
-	scale: 1.2;
+	scale: 1.3;
 	margin-bottom: 10px;
 }
 table.tasks > tr > td{
