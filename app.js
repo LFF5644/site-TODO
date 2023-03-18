@@ -29,8 +29,8 @@ const model={
 			...item,
 		})),
 	}),
-	addTask:(state,task)=>{
-		socket.emit("add-task",task);
+	addTask:(state,task,emit=true)=>{
+		if(emit) socket.emit("add-task",task);
 		console.log("add task",task);
 		return{
 			...state,
@@ -46,16 +46,16 @@ const model={
 			],
 		};
 	},
-	removeTask:(state,id)=>{
-		socket.emit("remove-task",id);
+	removeTask:(state,id,emit=true)=>{
+		if(emit) socket.emit("remove-task",id);
 		console.log("remove task",id);
 		return{
 			...state,
 			tasks: state.tasks.filter(item=>item.id!==id)
 		};
 	},
-	editTask:(state,task)=>{
-		socket.emit("edit-task",task);
+	editTask:(state,task,emit=true)=>{
+		if(emit) socket.emit("edit-task",task);
 		console.log("edit task",task);
 		return{
 			...state,
@@ -68,8 +68,8 @@ const model={
 			),
 		};
 	},
-	toggleTaskItem:(state,id,key)=>{
-		socket.emit("toggle-taskItem",{id,key});
+	toggleTaskItem:(state,id,key,emit=true)=>{
+		if(emit) socket.emit("toggle-taskItem",{id,key});
 		console.log("toggle Task Item",{id,key});
 		return{
 			...state,
@@ -245,6 +245,22 @@ init(()=>{
 		socket.on("TODOs",tasks=>{
 			console.log("get TODOs",tasks);
 			actions.setTasks(tasks);
+		});
+		socket.on("add-task",task=>{
+			console.log("OTHER: add task",task);
+			actions.addTask(task,false);
+		});
+		socket.on("remove-task",taskId=>{
+			console.log("OTHER: remove task",taskId);
+			actions.removeTask(taskId,false);
+		});
+		socket.on("edit-task",task=>{
+			console.log("OTHER: edit task",task);
+			actions.editTask(task,false);
+		});
+		socket.on("toggle-taskItem",({id,key})=>{
+			console.log("OTHER: toggle task item",{id,key});
+			actions.toggleTaskItem(id,key,false);
 		});
 		socket.on("connect",()=>{console.log("Connected as "+socket.id)})
 		socket.on("disconnect",()=>{console.log("Disconnect")})

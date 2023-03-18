@@ -21,33 +21,34 @@ this.start=()=>{
 		const {account,accountIndex}=login.data;
 		socket.emit("TODOs",services.storage.getTasks(account.username));
 		socket.on("add-task",task=>{
-			// TODO: send an all other clients with the same username
+			socket.broadcast.to(account.username).emit("add-task",task);
 			services.storage.addTask({
 				username: account.username,
 				task,
 			});
 		});
 		socket.on("remove-task",taskId=>{
-			// TODO: send an all other clients with the same username
+			socket.broadcast.to(account.username).emit("remove-task",taskId);
 			services.storage.removeTask({
 				username: account.username,
 				taskId,
 			});
 		});
 		socket.on("edit-task",task=>{
-			// TODO: send an all other clients with the same username
+			socket.broadcast.to(account.username).emit("edit-task",task);
 			services.storage.editTask({
 				username: account.username,
 				task,
 			});
 		});
 		socket.on("toggle-taskItem",({id,key})=>{
-			// TODO: send an all other clients with the same username
+			socket.broadcast.to(account.username).emit("toggle-taskItem",{id,key});
 			services.storage.toggleTaskItem({
 				username: account.username,
 				id, key,
 			});
 		});
+		socket.join(account.username);
 	});
 };
 this.stop=()=>{
