@@ -17,6 +17,7 @@ const model={
 		tasks: [],
 		taskText: "",
 		taskTitle: "",
+		taskCategory: "",
 		view: "tasks",
 	}),
 	setTasks:(state,tasks)=>({
@@ -25,6 +26,7 @@ const model={
 			id: Date.now(),
 			title: null,
 			text: null,
+			category: null,
 			finished: false,
 			...item,
 		})),
@@ -40,6 +42,7 @@ const model={
 					id: Date.now(),
 					title: null,
 					text: null,
+					category: null,
 					finished: false,
 					...task,
 				},
@@ -89,6 +92,13 @@ const model={
 		...state,
 		taskText,
 	}),
+	setTaskCategory:(state,taskCategory)=>{
+		console.log("task Category:",taskCategory);
+		return{
+			...state,
+			taskCategory,
+		};
+	},
 	setView:(state,view)=>({
 		...state,
 		view,
@@ -119,15 +129,11 @@ function ViewTasks({socket,state,actions}){return[
 	]),
 
 	state.tasks.length>0&&
-	node_dom("table",{
-		F:{
-			tasks: true,
-		},
-	},[
-		node_map(Task,state.tasks,{socket,state,actions}),
+	node_dom("table[className=tasks]",null,[
+		node_map(Task,state.tasks,{state,actions}),
 	]),
 ]}
-function Task({I,socket,state,actions}){return[
+function Task({I,state,actions}){return[
 	node_dom("tr",null,[
 		node_dom("td",null,[
 			node_dom("input[type=checkbox]",{
@@ -153,7 +159,7 @@ function Task({I,socket,state,actions}){return[
 		]),
 	]),
 ]}
-function ViewAddTask({socket,state,actions}){return[
+function ViewAddTask({state,actions}){return[
 	node_dom("div[className=box]",null,[
 		node_dom("p",null,[
 			node_dom("label[innerText=Titel: ]",null,[
@@ -172,17 +178,26 @@ function ViewAddTask({socket,state,actions}){return[
 			]),
 		]),
 		node_dom("p",null,[
+			node_dom("label[innerText=Kategorie: ]"),
+			node_dom("input[name=category]",{
+				oninput: event=> actions.setTaskCategory(event.target.value),
+				value: state.taskCategory,
+			}),
+		]),
+		node_dom("p",null,[
 			node_dom("button[innerText=Hinzufügen]",{
 				onclick:()=>{
 					actions.addTask({
 						id: Date.now(),
 						title: state.taskTitle,
 						text: state.taskText,
+						category: state.taskCategory,
 						finished: false,
 					});
 					actions.setView("tasks");
 					actions.setTaskText("");
 					actions.setTaskTitle("");
+					actions.setTaskCategory("");
 				},
 			}),
 			node_dom("button[innerText=Zurück]",{
@@ -192,6 +207,7 @@ function ViewAddTask({socket,state,actions}){return[
 				onclick:()=>{
 					actions.setTaskText("");
 					actions.setTaskTitle("");
+					actions.setTaskCategory("");
 				},
 			}),
 		]),
@@ -225,6 +241,17 @@ function ViewEdit({state,actions,task}){return[
 					}),
 					value: task.text,
 				}),
+			]),
+		]),
+		node_dom("p",null,[
+			node_dom("label[innerText=Kategorie: ]",null,[
+				node_dom("input[name=category]",{
+					oninput: event=> actions.editTask({
+						...task,
+						category: event.target.value,
+					}),
+					value: task.category,
+				})
 			]),
 		]),
 		node_dom("p",null,[
