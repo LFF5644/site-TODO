@@ -21,7 +21,13 @@ const model={
 	}),
 	setTasks:(state,tasks)=>({
 		...state,
-		tasks,
+		tasks: tasks.map(item=>({
+			id: Date.now(),
+			title: null,
+			text: null,
+			finished: false,
+			...item,
+		})),
 	}),
 	addTask:(state,task)=>{
 		socket.emit("add-task",task);
@@ -48,25 +54,33 @@ const model={
 			tasks: state.tasks.filter(item=>item.id!==id)
 		};
 	},
-	editTask:(state,task)=>({
-		...state,
-		tasks: state.tasks.map(
-			item=>item.id===task.id?{
-				...item,
-				...task,
-				id: item.id,
-			}:item
-		),
-	}),
-	toggleTaskItem:(state,id,key)=>({
-		...state,
-		tasks: state.tasks.map(
-			item=>item.id===id?{
-				...item,
-				[key]: !item[key],
-			}:item
-		),
-	}),
+	editTask:(state,task)=>{
+		socket.emit("edit-task",task);
+		console.log("edit task",task);
+		return{
+			...state,
+			tasks: state.tasks.map(
+				item=>item.id===task.id?{
+					...item,
+					...task,
+					id: item.id,
+				}:item
+			),
+		};
+	},
+	toggleTaskItem:(state,id,key)=>{
+		socket.emit("toggle-taskItem",{id,key});
+		console.log("toggle Task Item",{id,key});
+		return{
+			...state,
+			tasks: state.tasks.map(
+				item=>item.id===id?{
+					...item,
+					[key]: !item[key],
+				}:item
+			),
+		};
+	},
 	setTaskTitle:(state,taskTitle)=>({
 		...state,
 		taskTitle,
@@ -75,10 +89,6 @@ const model={
 		...state,
 		taskText,
 	}),
-	saveTasks: state=>{
-		localStorage.setItem("todo-tasks",JSON.stringify(state.tasks));
-		return state;
-	},
 	setView:(state,view)=>({
 		...state,
 		view,
@@ -159,11 +169,11 @@ function ViewAddTask({socket,state,actions}){return[
 						id: Date.now(),
 						title: state.taskTitle,
 						text: state.taskText,
+						finished: false,
 					});
 					actions.setView("tasks");
 					actions.setTaskText("");
 					actions.setTaskTitle("");
-					actions.saveTasks();
 				},
 			}),
 			node_dom("button[innerText=Zurück]",{
@@ -184,7 +194,6 @@ function ViewEdit({state,actions,task}){return[
 		node_dom("button[innerText=Back]",{
 			onclick:()=>{
 				actions.setView("tasks");
-				actions.saveTasks();
 			},
 		}),
 		node_dom("span[innerText=Bearbeiten]"),
@@ -229,32 +238,19 @@ init(()=>{
 			if(code=="wrong-token"){
 				alert("Sie sind NICHT angemeldet. Der Chat kann nur mit einem Account verwendet werden. Klicken Sie jetzt auf OK, um sich anzumelden!");
 				location.href="/account?goto=TODO";
+			}else{
+				console.log("error code from server: "+code);
 			}
 		});
 		socket.on("TODOs",tasks=>{
-			console.log("get todos",tasks);
+			console.log("get TODOs",tasks);
 			actions.setTasks(tasks);
 		});
 		socket.on("connect",()=>{console.log("Connected as "+socket.id)})
 		socket.on("disconnect",()=>{console.log("Disconnect")})
 
-		loadTasks:{
-			const tasks=localStorage.getItem("todo-tasks");
-			if(tasks){
-				actions.setTasks(JSON.parse(tasks));
-			}
-		}
-
 		return socket;
 	});
-
-	hook_effect(tasks=>{
-		const timeout=setTimeout(()=>{
-			console.log("SAVE();");
-			actions.saveTasks();
-		},3e3);
-		return ()=> clearInterval(timeout);
-	},[state.tasks]);
 
 	return[null,[
 		state.view==="tasks"&&
