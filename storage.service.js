@@ -110,7 +110,7 @@ this.save=saveRequired=>{
 		const dir=account.accountDir;
 		const tasks=account.tasks;
 		if(!account.saveRequired&&!saveRequired) continue;
-		const index=this.accounts.findIndex(item=>item.username===username);
+		const index=this.accounts.findIndex(item=>item.username===account.username);
 		this.accounts[index].saveRequired=false;
 		WriteFile(
 			dir+"/"+tasksFile,
