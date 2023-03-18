@@ -147,7 +147,7 @@ function Task({I,socket,state,actions}){return[
 			},
 		}),
 		node_dom("td",null,[
-			node_dom("button[innerText=E]",{
+			node_dom("button[innerText=E][title=Bearbeiten]",{
 				onclick:()=> actions.setView(I.id),
 			}),
 		]),
@@ -157,7 +157,7 @@ function ViewAddTask({socket,state,actions}){return[
 	node_dom("div[className=box]",null,[
 		node_dom("p",null,[
 			node_dom("label[innerText=Titel: ]",null,[
-				node_dom("input",{
+				node_dom("input[autofocus]",{
 					oninput: event=> actions.setTaskTitle(event.target.value),
 					value: state.taskTitle,
 				}),
@@ -172,7 +172,7 @@ function ViewAddTask({socket,state,actions}){return[
 			]),
 		]),
 		node_dom("p",null,[
-			node_dom("button[innerText=ADD TODO]",{
+			node_dom("button[innerText=Hinzufügen]",{
 				onclick:()=>{
 					actions.addTask({
 						id: Date.now(),
@@ -195,22 +195,19 @@ function ViewAddTask({socket,state,actions}){return[
 				},
 			}),
 		]),
-		
 	]),
 ]}
 function ViewEdit({state,actions,task}){return[
 	node_dom("h1[className=withButton]",null,[
 		node_dom("button[innerText=Back]",{
-			onclick:()=>{
-				actions.setView("tasks");
-			},
+			onclick:()=> actions.setView("tasks"),
 		}),
 		node_dom("span[innerText=Bearbeiten]"),
 	]),
 	node_dom("div[className=box]",null,[
 		node_dom("p",null,[
 			node_dom("label[innerText=Titel: ]",null,[
-				node_dom("input",{
+				node_dom("input[autofocus]",{
 					oninput: event=> actions.editTask({
 						id: task.id,
 						title: event.target.value,
@@ -229,6 +226,20 @@ function ViewEdit({state,actions,task}){return[
 					value: task.text,
 				}),
 			]),
+		]),
+		node_dom("p",null,[
+			node_dom("button[innerText=Löschen]",{
+				onclick:()=>{
+					actions.setView("tasks");
+					actions.removeTask(task.id);
+				},
+			}),
+			node_dom("button[innerText=Abschließen]",{
+				onclick:()=> actions.toggleTaskItem(task.id,"finished"),
+				S:{
+					backgroundColor: task.finished?"green":"",
+				},
+			}),
 		]),
 	]),
 ]}
@@ -285,9 +296,26 @@ init(()=>{
 		node(ViewAddTask,{socket,state,actions}),
 		
 		typeof(state.view)==="number"&&
+		state.tasks.find(item=>item.id===state.view)&&
 		node(ViewEdit,{
 			state, actions,
 			task: state.tasks.find(item=>item.id===state.view),
 		}),
+
+		typeof(state.view)==="number"&&
+		!state.tasks.find(item=>item.id===state.view)&&
+		node_dom("div",null,[
+			node_dom("h1[className=withButton]",null,[
+				node_dom("button[innerText=Back]",{
+					onclick:()=> actions.setView("tasks"),
+				}),
+				node_dom("span[innerText=Nicht Gefunden]"),
+			]),
+			node_dom("p[innerText=Aufgabe nicht gefunden! Jetzt ]",null,[
+				node_dom("a[innerText=Zurück Springen]",{
+					onclick:()=> actions.setView("tasks"),
+				}),
+			]),
+		])
 	]];
 });
