@@ -119,7 +119,7 @@ function ViewTasks({socket,state,actions}){return[
 	]),	
 ]}
 function Task({I,socket,state,actions}){return[
-	node_dom("tr[style=user-select: none;]",null,[
+	node_dom("tr",null,[
 		node_dom("td",null,[
 			node_dom("input[type=checkbox]",{
 				oninput: event=> actions.editTask({
