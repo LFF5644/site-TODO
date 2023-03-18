@@ -1,7 +1,9 @@
 <?
+const {hostname}=require("os");
 const {
 	importHead,
 }=globals.functions;
+const isDev=hostname()!=="lff-raspberrypi";
 ?><!DOCTYPE html>
 <!--CREATED AT: 05.08.2022 UM 09:12-->
 <!--UPDATED AT: 10.01.2023 UM 21:13-->
@@ -22,14 +24,14 @@ const {
 				"/p/TODO/style.css",
 			],
 			script:[
-				"/files/other/socket.io/socket.io.min.js",
-				"/files/other/lui/lui.dev.js",
+				((input.useLocal||input.legacy)?"/files/other/socket.io/":"https://cdn.socket.io/4.5.4/")+"socket.io.min.js",
+				((input.useLocal||input.legacy)?"/files/other/lui/":"https://cdn.jsdelivr.net/gh/L3P3/lui@7c057f498ee8813053d7f7cff3af7141b53ced03/")+(isDev&&!input.legacy?"lui.dev.js":"lui.legacy.js"),
 			],
 		})?>
 	</head>
 	<body>
 		<h1>Web Frame Work ist beschädigt oder kaput!</h1>
 		<noscript><h1>UND JavaScript ist aus!</h1></noscript>
-		<script src=/p/TODO/app.js></script>
+		<script src=<?=((isDev||input.raw)&&!input.build)?"/p/TODO/app.js":"/p/TODO/build/app.js"?>></script>
 	</body>
 </html>
