@@ -41,6 +41,13 @@ this.start=()=>{
 				task,
 			});
 		});
+		socket.on("toggle-taskItem",({id,key})=>{
+			// TODO: send an all other clients with the same username
+			services.storage.toggleTaskItem({
+				username: account.username,
+				id, key,
+			});
+		});
 	});
 };
 this.stop=()=>{

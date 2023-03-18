@@ -82,6 +82,20 @@ this.editTask=data=>{
 		);
 	this.accounts[index].saveRequired=true;
 };
+this.toggleTaskItem=data=>{
+	const {username,id,key}=data;
+	const index=this.accounts.findIndex(item=>item.username===username);
+	if(index===-1) throw new Error("Username not found! => this.toggleTaskItem");
+	const account=this.accounts[index];
+	this.accounts[index].tasks=account.tasks
+		.map(item=>item.id===id?
+			{
+				...item,
+				[key]: !item[key],
+			}:item
+		);
+	this.accounts[index].saveRequired=true;
+}
 this.save=saveRequired=>{
 	saveRequired=saveRequired===true;
 
