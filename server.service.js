@@ -1,8 +1,9 @@
-// Rio...#5519
 const socket_io=require("socket.io");
 const services={
 	account: service_require("server/account/account.new"),
+	storage: service_require("p/TODO/storage"),
 };
+
 this.start=()=>{
 	this.io=socket_io(42856,{
 		cors:{
@@ -18,6 +19,28 @@ this.start=()=>{
 			return;
 		}
 		const {account,accountIndex}=login.data;
+		socket.emit("TODOs",services.storage.getTasks(account.username));
+		socket.on("add-task",task=>{
+			// TODO: send an all other clients with the same username
+			services.storage.addTask({
+				username: account.username,
+				task,
+			});
+		});
+		socket.on("remove-task",taskId=>{
+			// TODO: send an all other clients with the same username
+			services.storage.removeTask({
+				username: account.username,
+				taskId,
+			});
+		});
+		socket.on("edit-task",task=>{
+			// TODO: send an all other clients with the same username
+			services.storage.editTask({
+				username: account.username,
+				task,
+			});
+		});
 	});
 };
 this.stop=()=>{
