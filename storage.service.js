@@ -30,6 +30,58 @@ this.start=()=>{
 	};
 	setInterval(this.save,5e3);
 };
+this.getTasks=username=>{
+	const account=this.accounts.find(item=>item.username===username);
+	if(!account){
+		return[];
+	}
+	return account.tasks;
+};
+this.addTask=data=>{
+	const {username,task}=data;
+	const index=this.accounts.findIndex(item=>item.username===username);
+	if(index===-1){
+		for(let folder of services.account.accountIndex){
+			folder=accountFolder+"/"+folder;
+			const account=ReadJsonFile(folder+"/"+accountJsonFile);
+			if(account.username===username){
+				this.accounts.push({
+					username: account.username,
+					nickname: account.nickname,
+					accountDir: folder,
+					tasks: [task],
+					saveRequired: true,
+				});
+				break;
+			}
+		}
+		return;
+	}
+	this.accounts[index].tasks.push(task);	
+	this.accounts[index].saveRequired=true;	
+};
+this.removeTask=data=>{
+	const {username,taskId}=data;
+	const index=this.accounts.findIndex(item=>item.username===username);
+	if(index===-1) throw new Error("Username not found! => this.removeTask");
+	const account=this.accounts[index];
+	this.accounts[index].tasks=account.tasks.filter(item=>item.id!==taskId);
+	this.accounts[index].saveRequired=true;
+};
+this.editTask=data=>{
+	const {username,task}=data;
+	const index=this.accounts.findIndex(item=>item.username===username);
+	if(index===-1) throw new Error("Username not found! => this.editTask");
+	const account=this.accounts[index];
+	this.accounts[index].tasks=account.tasks
+		.map(item=>item.id===task.id?
+			{
+				...item,
+				...task,
+			}:item
+		);
+	this.accounts[index].saveRequired=true;
+};
 this.save=saveRequired=>{
 	saveRequired=saveRequired===true;
 
@@ -44,6 +96,8 @@ this.save=saveRequired=>{
 		const dir=account.accountDir;
 		const tasks=account.tasks;
 		if(!account.saveRequired&&!saveRequired) continue;
+		const index=this.accounts.findIndex(item=>item.username===username);
+		this.accounts[index].saveRequired=false;
 		WriteFile(
 			dir+"/"+tasksFile,
 			JSON.stringify(tasks,null,2)
@@ -54,5 +108,5 @@ this.save=saveRequired=>{
 	return true;
 };
 this.stop=()=>{
-	this.save();
+	this.save(true);
 };
