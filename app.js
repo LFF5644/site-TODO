@@ -18,6 +18,7 @@ const model={
 		taskText: "",
 		taskTitle: "",
 		taskCategory: "",
+		category: "",
 		view: "tasks",
 	}),
 	setTasks:(state,tasks)=>({
@@ -92,13 +93,14 @@ const model={
 		...state,
 		taskText,
 	}),
-	setTaskCategory:(state,taskCategory)=>{
-		console.log("task Category:",taskCategory);
-		return{
-			...state,
-			taskCategory,
-		};
-	},
+	setTaskCategory:(state,taskCategory)=>({
+		...state,
+		taskCategory,
+	}),
+	setCategory:(state,category)=>({
+		...state,
+		category,
+	}),
 	setView:(state,view)=>({
 		...state,
 		view,
@@ -110,27 +112,56 @@ function getToken(){
 	if(cookie) return cookie.substring(6);
 	return null;
 }
-function ViewTasks({socket,state,actions}){return[
+function ViewTasks({state,actions}){return[
 	state.tasks.length===0&&
-	node_dom("h1[innerText=Keine TODOs]"),
-	
-	state.tasks.length===0&&
-	node_dom("p[innerText=Aufgabe jz ]",null,[
-		node_dom("a[innerText=erstellen]",{
-			onclick:()=> actions.setView("addTask"),
-		}),
+	node_dom("div",null,[
+		node_dom("h1[innerText=Keine TODOs]"),
+		node_dom("p[innerText=Aufgabe jz ]",null,[
+			node_dom("a[innerText=erstellen]",{
+				onclick:()=> actions.setView("addTask"),
+			}),
+		]),
 	]),
 
+	//.filter((item,index)=>index===state.tasks.findIndex(i=>i.category===item.category))
 	state.tasks.length>0&&
-	node_dom("p",null,[
-		node_dom("button[innerText=Neue Aufgabe]",{
-			onclick:()=> actions.setView("addTask"),
-		}),
-	]),
-
-	state.tasks.length>0&&
-	node_dom("table[className=tasks]",null,[
-		node_map(Task,state.tasks,{state,actions}),
+	node_dom("div",null,[
+		node_dom("p",null,[
+			node_dom("label[innerText=Kategorien: ]",null,[
+				node_dom("input",{
+					oninput: event=> actions.setCategory(event.target.value),
+					value: String(state.category),
+				}),
+			]),
+			node_dom("button[innerText=Neue Aufgabe]",{
+				onclick:()=> actions.setView("addTask"),
+			}),
+		]),
+		node_dom("table[className=tasks]",null,[
+			node_map(
+				Task,
+				(
+					state.tasks
+						.filter(item=>
+							state.category
+								.split(",")
+								.map(i=>i.trim())
+								.some(i=>
+									item.category
+										.split(",")
+										.map(i=>i.trim())
+										.some(i2=>i2===i)
+								)
+							||
+							state.category===""
+						)
+				),
+				{
+					state,
+					actions,
+				},
+			),
+		]),
 	]),
 ]}
 function Task({I,state,actions}){return[
@@ -178,7 +209,7 @@ function ViewAddTask({state,actions}){return[
 			]),
 		]),
 		node_dom("p",null,[
-			node_dom("label[innerText=Kategorie: ]"),
+			node_dom("label[innerText=Kategorien: ]"),
 			node_dom("input[name=category]",{
 				oninput: event=> actions.setTaskCategory(event.target.value),
 				value: state.taskCategory,
@@ -244,7 +275,7 @@ function ViewEdit({state,actions,task}){return[
 			]),
 		]),
 		node_dom("p",null,[
-			node_dom("label[innerText=Kategorie: ]",null,[
+			node_dom("label[innerText=Kategorien: ]",null,[
 				node_dom("input[name=category]",{
 					oninput: event=> actions.editTask({
 						...task,
