@@ -348,10 +348,10 @@ init(()=>{
 
 	return[null,[
 		state.view==="tasks"&&
-		node(ViewTasks,{socket,state,actions}),
+		node(ViewTasks,{state,actions}),
 
 		state.view=="addTask"&&
-		node(ViewAddTask,{socket,state,actions}),
+		node(ViewAddTask,{state,actions}),
 		
 		typeof(state.view)==="number"&&
 		state.tasks.find(item=>item.id===state.view)&&
