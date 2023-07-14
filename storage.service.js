@@ -7,6 +7,8 @@ const tasksFile="tasks.json";
 const accountJsonFile="account.json";
 const accountFolder="data/accounts";
 
+let intervalSave;
+
 this.start=()=>{
 	this.accounts=[];
 
@@ -28,7 +30,7 @@ this.start=()=>{
 		}
 
 	};
-	setInterval(this.save,5e3);
+	intervalSave=setInterval(this.save,5e3);
 };
 this.getTasks=username=>{
 	const account=this.accounts.find(item=>item.username===username);
@@ -101,7 +103,7 @@ this.save=saveRequired=>{
 
 	if(
 		!saveRequired&&
-		this.accounts.some(item=>item.saveRequired)
+		!this.accounts.some(item=>item.saveRequired)
 	){
 		return false;
 	}
@@ -118,9 +120,11 @@ this.save=saveRequired=>{
 				.split("  ")
 				.join("\t")
 		);
+		log(`SAVE: ${account.username}'s data to hard-disc`);
 	}
 	return true;
 };
 this.stop=()=>{
+	clearInterval(intervalSave);
 	this.save(true);
 };
