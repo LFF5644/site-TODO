@@ -28,6 +28,12 @@ const isDev=hostname()!=="lff-raspberrypi";
 				((input.useLocal||input.legacy)?"/files/other/lui/":"https://cdn.jsdelivr.net/gh/L3P3/lui@7c057f498ee8813053d7f7cff3af7141b53ced03/")+(isDev&&!input.legacy?"lui.dev.js":"lui.legacy.js"),
 			],
 		})?>
+		<meta name=mobile-web-app-capable content=yes>
+		<meta name=apple-mobile-web-app-capable content=yes>
+		<meta name=apple-mobile-web-app-title content=Aufgaben-Planer>
+		<link rel=apple-touch-icon sizes=32x32 href=/files/img/icon/TODO/todo32.png>
+		<link rel=apple-touch-icon sizes=64x64 href=/files/img/icon/TODO/todo64.png>
+		<link rel=apple-touch-icon sizes=175x175 href=/files/img/icon/TODO/todo.png>
 	</head>
 	<body>
 		<h1>Web Frame Work ist beschädigt oder kaput!</h1>

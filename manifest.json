@@ -1,24 +1,28 @@
 {
 	"name":"Task Planer",
 	"description":"Aufgaben Planer",
-	"short_name":"To Do",
+	"short_name":"TODO",
 	"icons":[
 		{
-			"sizes":"175x175",
+			"sizes":"175x175 any",
+			"type": "image/png",
 			"src":"/files/img/icon/TODO/todo.png"
 		},
 		{
 			"sizes":"64x64",
+			"type": "image/png",
 			"src":"/files/img/icon/TODO/todo64.png"
 		},
 		{
 			"sizes":"32x32",
+			"type": "image/png",
 			"src":"/files/img/icon/TODO/todo32.png"
 		}
 	],
-	"scope":"/TODO",
+	"scope":"/TODO/",
 	"start_url":"/TODO/?type=app",
-	"display":"fullscreen",
+	"id":"/TODO/?type=app",
+	"display":"standalone",
 	"theme_color": "#103",
 	"background_color":"#103"
 }
