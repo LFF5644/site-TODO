@@ -11,9 +11,32 @@ a{
 	text-decoration: underline;
 }
 
-.finished{
+td.finished{
 	text-decoration: line-through;
 }
+button.finished{
+	background-color: green;
+	border-color: orange;
+	color:yellow;
+	border-radius: 5px;
+}
+
+div.box.todo > p.labelTextarea{
+	margin-bottom: 0;
+	padding-bottom: 0;
+	margin-left: 20px;
+}
+div.box.todo > p.textarea{
+	margin-top: 5px;
+	margin-left: 5px;
+	margin-right: 5px;
+}
+div.box.todo > p.textarea > textarea{
+	width: 95%;
+	height: auto;
+	overflow-y: hidden;
+}
+
 div.box{
 	margin: 0 auto;
 	margin-top: 30px;

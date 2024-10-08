@@ -106,7 +106,10 @@ const model={
 		view,
 	}),
 };
-
+function textareaFitContent(event){
+	event.target.style.height="auto";
+	event.target.style.height=event.target.scrollHeight+"px";
+}
 function getToken(){
 	const cookie=document.cookie.split("; ").find(item=>item.startsWith("token="));
 	if(cookie) return cookie.substring(6);
@@ -191,7 +194,7 @@ function Task({I,state,actions}){return[
 	]),
 ]}
 function ViewAddTask({state,actions}){return[
-	node_dom("div[className=box]",null,[
+	node_dom("div[className=box todo create]",null,[
 		node_dom("p",null,[
 			node_dom("label[innerText=Titel: ]",null,[
 				node_dom("input[autofocus]",{
@@ -200,13 +203,17 @@ function ViewAddTask({state,actions}){return[
 				}),
 			]),
 		]),
-		node_dom("p",null,[
-			node_dom("label[innerText=Text: ]",null,[
-				node_dom("input",{
-					oninput: event=> actions.setTaskText(event.target.value),
-					value: state.taskText,
-				}),
-			]),
+		node_dom("p[innerText=Beschreibungs Text][className=labelTextarea]"),
+		node_dom("p[className=textarea]",null,[
+			node_dom("textarea",{
+				oninput: event=>{
+					actions.setTaskText(event.target.value.split("&#10;").join("\n"));
+
+					textareaFitContent(event);
+				},
+				onfocus: textareaFitContent,
+				innerHTML: state.taskText.split("\n").join("&#10;"),
+			}),
 		]),
 		node_dom("p",null,[
 			node_dom("label[innerText=Kategorien: ]"),
@@ -251,10 +258,10 @@ function ViewEdit({state,actions,task}){return[
 		}),
 		node_dom("span[innerText=Bearbeiten]"),
 	]),
-	node_dom("div[className=box]",null,[
+	node_dom("div[className=box todo edit]",null,[
 		node_dom("p",null,[
 			node_dom("label[innerText=Titel: ]",null,[
-				node_dom("input[autofocus]",{
+				node_dom("input",{
 					oninput: event=> actions.editTask({
 						id: task.id,
 						title: event.target.value,
@@ -263,16 +270,20 @@ function ViewEdit({state,actions,task}){return[
 				}),
 			]),
 		]),
-		node_dom("p",null,[
-			node_dom("label[innerText=Text: ]",null,[
-				node_dom("input",{
-					oninput: event=> actions.editTask({
+		node_dom("p[innerText=Beschreibungs Text][className=labelTextarea]"),
+		node_dom("p[className=textarea]",null,[
+			node_dom("textarea",{
+				oninput: event=>{
+					actions.editTask({
 						id: task.id,
-						text: event.target.value,
-					}),
-					value: task.text,
-				}),
-			]),
+						text: event.target.value.split("&#10;").join("\n"),
+					});
+					textareaFitContent(event);
+				},
+				onfocus: textareaFitContent,
+				innerHTML: task.text.split("\n").join("&#10;"),
+				//rows: task.text.split("\n").length+1,
+			}),
 		]),
 		node_dom("p",null,[
 			node_dom("label[innerText=Kategorien: ]",null,[
@@ -294,8 +305,8 @@ function ViewEdit({state,actions,task}){return[
 			}),
 			node_dom("button[innerText=Abschließen]",{
 				onclick:()=> actions.toggleTaskItem(task.id,"finished"),
-				S:{
-					backgroundColor: task.finished?"green":"",
+				F:{
+					finished: task.finished,
 				},
 			}),
 		]),
