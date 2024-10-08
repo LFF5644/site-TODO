@@ -129,6 +129,9 @@ function ViewTasks({state,actions}){return[
 	//.filter((item,index)=>index===state.tasks.findIndex(i=>i.category===item.category))
 	state.tasks.length>0&&
 	node_dom("div",null,[
+		node_dom("h1",{
+			innerText: "Aufgaben "+state.tasks.filter(item=>!item.finished).length,
+		}),
 		node_dom("p",null,[
 			node_dom("label[innerText=Kategorien: ]",null,[
 				node_dom("input",{
@@ -136,9 +139,13 @@ function ViewTasks({state,actions}){return[
 					value: String(state.category),
 				}),
 			]),
+		]),
+		node_dom("p[className=buttonlist]",null,[
+			node_dom("span[innerText=Aktionen: ]"),
 			node_dom("button[innerText=Neue Aufgabe]",{
 				onclick:()=> actions.setView("addTask"),
 			}),
+			node_dom("button[innerText=Katigorien][disabled][title=geplantest feature]"),
 		]),
 		node_dom("table[className=tasks]",null,[
 			node_map(
@@ -194,6 +201,12 @@ function Task({I,state,actions}){return[
 	]),
 ]}
 function ViewAddTask({state,actions}){return[
+	node_dom("h1[className=withButton]",null,[
+		node_dom("button[innerText=Back]",{
+			onclick:()=> actions.setView("tasks"),
+		}),
+		node_dom("span[innerText=Neue Aufgabe]"),
+	]),
 	node_dom("div[className=box todo create]",null,[
 		node_dom("p",null,[
 			node_dom("label[innerText=Titel: ]",null,[
@@ -203,7 +216,7 @@ function ViewAddTask({state,actions}){return[
 				}),
 			]),
 		]),
-		node_dom("p[innerText=Beschreibungs Text][className=labelTextarea]"),
+		node_dom("p[innerText=Beschreibung][className=labelTextarea]"),
 		node_dom("p[className=textarea]",null,[
 			node_dom("textarea",{
 				oninput: event=>{
@@ -222,7 +235,7 @@ function ViewAddTask({state,actions}){return[
 				value: state.taskCategory,
 			}),
 		]),
-		node_dom("p",null,[
+		node_dom("p[className=buttonlist]",null,[
 			node_dom("button[innerText=Hinzufügen]",{
 				onclick:()=>{
 					actions.addTask({
@@ -270,7 +283,7 @@ function ViewEdit({state,actions,task}){return[
 				}),
 			]),
 		]),
-		node_dom("p[innerText=Beschreibungs Text][className=labelTextarea]"),
+		node_dom("p[innerText=Beschreibung][className=labelTextarea]"),
 		node_dom("p[className=textarea]",null,[
 			node_dom("textarea",{
 				oninput: event=>{
@@ -296,7 +309,7 @@ function ViewEdit({state,actions,task}){return[
 				})
 			]),
 		]),
-		node_dom("p",null,[
+		node_dom("p[className=buttonlist]",null,[
 			node_dom("button[innerText=Löschen]",{
 				onclick:()=>{
 					actions.setView("tasks");
@@ -325,7 +338,7 @@ init(()=>{
 
 		socket.on("error_code",code=>{
 			if(code=="wrong-token"){
-				alert("Sie sind NICHT angemeldet. Der Chat kann nur mit einem Account verwendet werden. Klicken Sie jetzt auf OK, um sich anzumelden!");
+				alert("Der Aufgaben-Planer (TODO App) kann derzeit nur mit einem Account benutzt werden! Sie werden Automatisch auf die Account Seite weitergeleitet!\n\nMit OK zur Anmeldeseite gelangen!");
 				location.href="/account?goto=TODO";
 			}else{
 				console.log("error code from server: "+code);

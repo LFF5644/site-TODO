@@ -2,14 +2,32 @@ body{
 	-moz-user-select: none;
 	user-select: none;
 }
+
 button{
-	cursor: pointer;
 	margin-left: 2.5px;
 	margin-right: 2.5px;
 }
+button:enabled{
+	cursor: pointer;
+}
+button:disabled{
+	cursor: not-allowed;
+}
+
 a{
 	text-decoration: underline;
 }
+
+.buttonlist > button{
+	padding-top: 2.5px;
+	padding-bottom: 2.5px;
+	padding-right: 5px;
+	padding-left: 5px;
+	margin-right: 5px;
+	margin-left: 5px;
+	margin-bottom: 5px;
+}
+
 
 td.finished{
 	text-decoration: line-through;
